@@ -356,24 +356,6 @@ ocargo.LevelEditor = function(levelId) {
 
                 });
 
-                //Min & max spinners
-                var minSpinner = $('#min_cows_spinner').spinner({
-                    min: 1,
-                    max: 1
-                }).val(1);
-                minSpinner.on('spinstop', function () {
-                    $('#max_cows_spinner').spinner('option', 'min', $('#min_cows_spinner').val());
-                    cowGroups[$('#cow_group_select').val()].minCows = $('#min_cows_spinner').val();
-                });
-
-                var maxSpinner = $('#max_cows_spinner').spinner({
-                    min: 1,
-                    max: 1
-                }).val(1);
-                maxSpinner.on('spinstop', function () {
-                    $('#min_cows_spinner').spinner('option', 'max', $('#max_cows_spinner').val());
-                    cowGroups[$('#cow_group_select').val()].maxCows = $('#max_cows_spinner').val();
-                });
 
                 //Group select element (has to be initialised after the min and max spinners are created)
                 $('#cow_group_select').on('change', function () {
@@ -390,17 +372,17 @@ ocargo.LevelEditor = function(levelId) {
                     // Set cow type
                     $('#cow_type_select').val(cowGroups[this.value].type).change();
 
-                    var minMaxValue = Math.max(1, cowGroups[this.value].maxCows);
-                    $('#min_cows_spinner').spinner('option', 'max', minMaxValue);
-                    var maxMinValue = Math.max(1, cowGroups[this.value].minCows);
-                    $('#max_cows_spinner').spinner('option', 'min', maxMinValue);
-                    $('#max_cows_spinner').spinner('option', 'max', Math.max(1, noOfValidCowsInGroup));
+                //     var minMaxValue = Math.max(1, cowGroups[this.value].maxCows);
+                //     $('#min_cows_spinner').spinner('option', 'max', minMaxValue);
+                //     var maxMinValue = Math.max(1, cowGroups[this.value].minCows);
+                //     $('#max_cows_spinner').spinner('option', 'min', maxMinValue);
+                //     $('#max_cows_spinner').spinner('option', 'max', Math.max(1, noOfValidCowsInGroup));
 
-                    //Set min & max values
-                    $('#min_cows_spinner').val(cowGroups[this.value].minCows);
-                    $('#max_cows_spinner').val(cowGroups[this.value].maxCows);
+                //     //Set min & max values
+                //     $('#min_cows_spinner').val(cowGroups[this.value].minCows);
+                //     $('#max_cows_spinner').val(cowGroups[this.value].maxCows);
                 });
-
+                
                 if (Object.keys(cowGroups).length == 0) {
                     addCowGroup();
                 }
@@ -476,9 +458,10 @@ ocargo.LevelEditor = function(levelId) {
                     toolbox: toolbox,
                     trashcan: true
                 });
-
+                console.log("go through blocks");
                 for (var i = 0; i < BLOCKS.length; i++) {
                     var type = BLOCKS[i];
+                    console.log(type);
                     var block = Blockly.mainWorkspace.newBlock(type);
                     block.initSvg();
                     block.render();

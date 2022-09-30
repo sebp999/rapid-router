@@ -155,9 +155,8 @@ function initCustomBlocksDescription() {
     };
 
     Blockly.Blocks['sound_horn'] = {
-        // Block for puffing up the van
         init: function() {
-            this.setColour(330);
+            this.setColour(160);
             this.appendDummyInput()
                 .appendField(gettext('sound horn'))
                 .appendField(new Blockly.FieldImage(ocargo.Drawing.imageDir + 'empty.svg',
@@ -166,8 +165,8 @@ function initCustomBlocksDescription() {
                 .appendField(new Blockly.FieldImage(ocargo.Drawing.imageDir + 'empty.svg',
                     ocargo.BlocklyControl.IMAGE_WIDTH,
                     ocargo.BlocklyControl.BLOCK_HEIGHT));
-            this.setPreviousStatement(true, 'EventAction');
-            this.setNextStatement(false);
+            this.setPreviousStatement(true, 'Action');
+            this.setNextStatement(true, 'Action');
             this.setTooltip(gettext('Sound the horn to scare away the cows'));
         }
     };
@@ -207,6 +206,17 @@ function initCustomBlocksDescription() {
         }
     };
 
+    Blockly.Blocks['cow_crossing'] = {
+        init: function() {
+            this.setOutput(true, 'Boolean');
+            this.appendDummyInput()
+                .appendField(gettext('cow crossing'))
+                .appendField(new Blockly.FieldImage(ocargo.Drawing.imageDir + 'empty.svg',
+                                                    ocargo.BlocklyControl.EXTRA_BLOCK_WIDTH,
+                                                    ocargo.BlocklyControl.BLOCK_HEIGHT));
+        }
+    };
+
     Blockly.Blocks['dead_end'] = {
         init: function() {
             this.setColour(210);
@@ -232,7 +242,7 @@ function initCustomBlocksDescription() {
     };
 
     console.log(ocargo.Drawing.imageDir);
-    Blockly.Blocks['is_cows'] = {
+    Blockly.Blocks['cow_crossing'] = {
         init: function() {
             this.setColour(210);
             this.setOutput(true, 'Boolean');
@@ -276,34 +286,6 @@ function initCustomBlocksDescription() {
                 .setCheck('Action')
                 .appendField(gettext('Do'));
             this.setTooltip(gettext('Declares the procedure'));
-            this.statementConnection_ = null;
-        }
-    };
-
-    /****************/
-    /*    Events    */
-    /****************/
-
-    Blockly.Blocks['declare_event'] = {
-
-        // Block for declaring an event handler
-        init: function() {
-            this.setColour(260);
-            var dropdown = new Blockly.FieldDropdown([[gettext('white'), ocargo.Cow.WHITE], [gettext('brown'), ocargo.Cow.BROWN]], function(option) {
-                var imageUrl = ocargo.Drawing.imageDir + ocargo.Drawing.cowUrl(option);
-                this.sourceBlock_.getField('IMAGE').setValue(imageUrl);
-            });
-            this.appendDummyInput('Event')
-                .appendField(gettext('On '))
-                .appendField(dropdown, 'TYPE')
-                .appendField(new Blockly.FieldImage(ocargo.Drawing.imageDir + ocargo.Drawing.whiteCowUrl,
-                    ocargo.BlocklyControl.COW_WIDTH,
-                    ocargo.BlocklyControl.BLOCK_HEIGHT), 'IMAGE');
-            this.getField('IMAGE').EDITABLE = true; //saves the image path as well in the XML
-            this.appendStatementInput('DO')
-                .setCheck('EventAction')
-                .appendField(gettext('Do'));
-            this.setTooltip(gettext('Declares the event handler'));
             this.statementConnection_ = null;
         }
     };
@@ -467,7 +449,7 @@ function initCustomBlocksPython() {
         // TODO: get code out of sub-blocks (there's a Blockly function for it)
     };
 
-    Blockly.Python['declare_event'] = function(block) {
+    Blockly.Python['cow_crossing'] = function(block) {
         // TODO support events in python
         throw 'events not supported in python';
     };

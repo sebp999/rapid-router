@@ -261,6 +261,7 @@ def add_blocks(apps, schema_editor):
     block4 = Block(type="turn_around")
     block5 = Block(type="wait")
     block6 = Block(type="deliver")
+    block6a = Block(type="sound_horn")
     block7 = Block(type="controls_repeat")
     block8 = Block(type="controls_repeat_while")
     block9 = Block(type="controls_repeat_until")
@@ -270,15 +271,16 @@ def add_blocks(apps, schema_editor):
     block13 = Block(type="road_exists")
     block14 = Block(type="dead_end")
     block15 = Block(type="traffic_light")
+    block15a = Block(type="cow_crossing")
     block16 = Block(type="call_proc")
     block17 = Block(type="declare_proc")
-    block18 = Block(type="is_cows")
 
     block1.save()
     block2.save()
     block3.save()
     block4.save()
     block5.save()
+    block6a.save()
     block6.save()
     block7.save()
     block8.save()
@@ -289,9 +291,9 @@ def add_blocks(apps, schema_editor):
     block13.save()
     block14.save()
     block15.save()
+    block15a.save()
     block16.save()
     block17.save()
-    block18.save()
 
 
 def add_levels(apps, schema_editor):

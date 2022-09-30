@@ -104,18 +104,29 @@ ocargo.Model.prototype.isDeadEnd = function() {
 };
 
 ocargo.Model.prototype.isCowCrossing = function(type) {
-    var result = false;
+    console.log("IS COW CROSSING???");
     this.observe('cow crossing');
-    var node = this.van.getPosition().currentNode;
-    var nodes = this.getNodesAhead(node);
-    for (var i = 0 ; i < nodes.length ; i++) {
-        var cow = this.getCowForNode(nodes[i], ocargo.Cow.ACTIVE);
-        if (cow != null && cow.type == type && cow.triggerEvent) {
-            cow.triggerEvent = false;
-            result = true;
-        }
-    }
-    return result;
+    var thisNode = this.van.getPosition().currentNode;
+    console.log(thisNode);
+    // var alreadyVisited = this.van.visitedNodes;
+    // console.log(this.van.visitedNodes);
+    // var connectedToThisNode = thisNode.connectedNodes;
+    // console.log(connectedToThisNode);
+    // var nextNodes = connectedToThisNode.filter(x => !alreadyVisited.includes(x));
+    // console.log(nextNodes);
+    // for(var i = 0; i < nextNodes.length; i++) {
+    //     var cow = this.getCowForNode(nextNodes[i]);
+    //     console.log(cow);
+    //     if (cow != null) {
+    //         return true;
+    //     }
+    // }
+    // return false;
+    var cow = this.getCowForNode(thisNode);
+    console.log(cow);
+    if (cow == null) return false;
+    else return true;
+
 };
 
 ocargo.Model.prototype.isTrafficLightRed = function() {
@@ -156,7 +167,7 @@ ocargo.Model.prototype.moveVan = function(nextNode, action) {
     let collisionWithCow = previousNodeCow && nextNode !== this.van.getPosition().currentNode;
 
     if (collisionWithCow) {
-        handleCrash(this, gettext('You ran into a cow! Keep in mind that cows can appear anywhere on the map.'),
+        handleCrash(this, gettext('You ran into a cow! '),
             'COLLISION_WITH_COW', 'collision with cow van move action: ');
         return false;
     }
@@ -617,8 +628,18 @@ ocargo.Model.prototype.programExecutionEnded = function () {
 // A helper function which returns the traffic light associated
 // with a particular node and orientation
 ocargo.Model.prototype.getTrafficLightForNode = function(position) {
+    console.log("IS THERE A TRAFFIC LIGHT?");
+    console.log(position);
+    console.log(position.previousNode);
+    console.log(position.currentNode);
+
     for (var i = 0; i < this.trafficLights.length; i++) {
         var light = this.trafficLights[i];
+        
+        console.log(light);
+        console.log(position.previousNode);
+        console.log(position.currentNode);
+
         if (light.sourceNode === position.previousNode && light.controlledNode === position.currentNode) {
             return light;
         }
@@ -641,7 +662,7 @@ ocargo.Model.prototype.getCowForNode = function(node, status) {
     var jsonCoordinate = JSON.stringify(node.coordinate);
     for(var i = 0; i < this.cows.length; i++) {
         var cow = this.cows[i];
-        if (jsonCoordinate in cow.activeNodes && cow.activeNodes[jsonCoordinate] == status) {
+        if (jsonCoordinate in cow.activeNodes) {
             return cow;
         }
     }

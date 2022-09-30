@@ -70,7 +70,7 @@ def available_blocks():
         return Block.objects.all()
     else:
         return Block.objects.all().exclude(
-            type__in=["declare_event", "puff_up", "sound_horn"]
+            type__in=["cow_crossing", "puff_up", "sound_horn"]
         )
 
 

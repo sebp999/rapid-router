@@ -123,7 +123,7 @@ ocargo.Cow.prototype.incrementTime = function(model) {
         if (this.activeNodes[jsonCoordinate] == ocargo.Cow.ACTIVE) {
             var coordinate = JSON.parse(jsonCoordinate);
             var cowTimestamp = this.activeNodeTimers[jsonCoordinate];
-            if (this.scaredAwayByHorn(model, cowTimestamp, coordinate) || this.scaredAwayByPuffUp(model, cowTimestamp, coordinate)) {
+            if (this.scaredAwayByHorn(model, cowTimestamp, coordinate)) {
                 // Deactivate and remove cow from map
                 this.activeNodes[jsonCoordinate] = ocargo.Cow.INACTIVE;
                 this.activeNodeTimers[jsonCoordinate] = 0;
@@ -139,18 +139,9 @@ ocargo.Cow.prototype.scaredAwayByHorn = function(model, coordinateTime, coordina
     if(jQuery.isEmptyObject(model.soundedHorn)){
         return false;
     }
-    return this.type == ocargo.Cow.WHITE && coordinateTime < model.soundedHorn.timestamp && this.withinRadius(coordinate, model.soundedHorn.coordinates) ;
-
+    return this.withinRadius(coordinate, model.soundedHorn.coordinates) ;
 };
 
-// Brown cows are scared away if the van was puffed up at the time of checking
-ocargo.Cow.prototype.scaredAwayByPuffUp = function(model, coordinateTime, coordinate){
-    if(jQuery.isEmptyObject(model.puffedUp)){
-        return false;
-    }
-    return this.type == ocargo.Cow.BROWN && this.withinRadius(coordinate, model.puffedUp.coordinates) ;
-
-};
 
 ocargo.Cow.prototype.withinRadius = function(coordinate1, coordinate2){
     return Math.abs(coordinate1.x-coordinate2.x)+ Math.abs(coordinate1.y-coordinate2.y) <= 2;
