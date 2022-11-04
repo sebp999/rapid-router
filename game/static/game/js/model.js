@@ -59,18 +59,14 @@ ocargo.Model.prototype.reset = function() {
     this.puffedUp = {};
 };
 
-// Randomly chooses the cow positions, called by program.js
-ocargo.Model.prototype.chooseNewCowPositions = function() {
-    for (var j = 0; j < this.cows.length; j++) {
-        this.cows[j].chooseNewCowPositions();
-    }
-};
 
 ///////////////////////
 // Begin observation function, each tests something about the model
 // and returns a boolean
 
 ocargo.Model.prototype.observe = function(desc) {
+    console.log("observing");
+    console.log(this.shouldObserve);
     if (this.shouldObserve) {
         ocargo.animation.appendAnimation({
             type: 'van',
@@ -124,8 +120,12 @@ ocargo.Model.prototype.isCowCrossing = function(type) {
     // return false;
     var cow = this.getCowForNode(thisNode);
     console.log(cow);
+    
     if (cow == null) return false;
-    else return true;
+
+    var state = cow.activeNodes[JSON.stringify(thisNode.coordinate)];
+    console.log(state);
+    return state == 'ACTIVE';
 
 };
 
@@ -335,6 +335,7 @@ ocargo.Model.prototype.setCowsActive = function(nextNode) {
             cow.setActive(this, nodes[i]);
         }
     }
+    return;
 };
 
 ocargo.Model.prototype.makeDelivery = function(destination) {
@@ -439,6 +440,7 @@ ocargo.Model.prototype.deliver = function() {
 };
 
 ocargo.Model.prototype.sound_horn = function() {
+    console.log("sound horn");
     this.soundedHorn = {timestamp:this.movementTimestamp, coordinates:this.getCurrentCoordinate()};
     ocargo.animation.appendAnimation({
         type: 'callable',
@@ -447,6 +449,14 @@ ocargo.Model.prototype.sound_horn = function() {
         description: 'van sound: sounding the horn'
     });
 
+    this.van.startingPosition.currentNode.connectedNodes.forEach( (node) => {
+        var cow = this.getCowForNode(node);
+        if (cow) {
+            cow.queueLeaveAnimation(node);
+            cow.setInactive(this, node);
+        };
+    });
+    
     return true;
 };
 
@@ -658,12 +668,19 @@ ocargo.Model.prototype.getDestinationForNode = function(node) {
     return null;
 };
 
-ocargo.Model.prototype.getCowForNode = function(node, status) {
+ocargo.Model.prototype.getCowForNode = function(node, state) {
+    console.log(state);
     var jsonCoordinate = JSON.stringify(node.coordinate);
     for(var i = 0; i < this.cows.length; i++) {
         var cow = this.cows[i];
         if (jsonCoordinate in cow.activeNodes) {
-            return cow;
+            if (state === undefined){
+                return cow;
+            } else {
+                if (cow.activeNodes[jsonCoordinate] === state) {
+                    return cow
+                } 
+            }
         }
     }
     return null;
@@ -697,9 +714,9 @@ ocargo.Model.prototype.incrementCowTime = function() {
         this.van.puffDown();
     }
 
-    for (var i = 0; i < this.cows.length; i++) {
-        this.cows[i].incrementTime(this);
-    }
+    // for (var i = 0; i < this.cows.length; i++) {
+    //     this.cows[i].incrementTime(this);
+    // }
     this.soundedHorn = {};
 
 };

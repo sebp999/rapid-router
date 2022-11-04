@@ -162,6 +162,7 @@ ocargo.Animation.prototype.appendAnimation = function(a) {
 	this.animationQueue[this.lastTimestamp].push(a);
 };
 
+
 ocargo.Animation.prototype.startNewTimestamp = function() {
 	this.lastTimestamp += 1;
 
