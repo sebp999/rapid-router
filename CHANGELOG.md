@@ -2,6 +2,18 @@
 
 <!--next-version-placeholder-->
 
+## v5.5.2 (2022-10-24)
+### Fix
+* Fix certain elements about the UI to an acceptable standard ([#1373](https://github.com/ocadotechnology/rapid-router/issues/1373)) ([`0653c64`](https://github.com/ocadotechnology/rapid-router/commit/0653c64b725a0cdb34f5763da3295a6655a7f7ef))
+
+## v5.5.1 (2022-10-10)
+### Fix
+* Fix custom level save bugs ([#1372](https://github.com/ocadotechnology/rapid-router/issues/1372)) ([`ee4079a`](https://github.com/ocadotechnology/rapid-router/commit/ee4079aa3a0350635dd8a07f3e6192b543748056))
+
+## v5.5.0 (2022-10-06)
+### Feature
+* Admin power for custom levels ([#1371](https://github.com/ocadotechnology/rapid-router/issues/1371)) ([`22b34e6`](https://github.com/ocadotechnology/rapid-router/commit/22b34e608895f7b495efeb51e49b82635ba5235f))
+
 ## v5.4.3 (2022-09-13)
 ### Fix
 * Resolve scoreboard and button issues ([#1369](https://github.com/ocadotechnology/rapid-router/issues/1369)) ([`6615510`](https://github.com/ocadotechnology/rapid-router/commit/6615510f142c94f933498a9209737eca3455aeeb))

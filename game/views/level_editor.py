@@ -5,12 +5,12 @@ import re
 from builtins import map
 from builtins import str
 
-from common.models import Student, Class, Teacher
+from common.models import Student, Teacher
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_POST
 from portal.templatetags import app_tags
@@ -226,26 +226,50 @@ def save_level_for_editor(request, levelId=None):
 
     if pattern.match(data["name"]):
         level_management.save_level(level, data)
-        # Add the teacher automatically if it is a new level and the student is not
-        # independent
-        if (
-            (levelId is None)
-            and hasattr(level.owner, "student")
-            and not level.owner.student.is_independent()
-        ):
-            level.shared_with.add(level.owner.student.class_field.teacher.user.user)
+
+        if levelId is None:
+            teacher = None
+
+            is_user_school_student = (
+                hasattr(level.owner, "student")
+                and not level.owner.student.is_independent()
+            )
+            is_user_independent = (
+                hasattr(level.owner, "student") and level.owner.student.is_independent()
+            )
+            is_user_teacher = hasattr(level.owner, "teacher")
+
+            # if level owner is a school student, share with teacher automatically if they aren't an admin
+            if is_user_school_student:
+                teacher = level.owner.student.class_field.teacher
+                if not teacher.is_admin:
+                    level.shared_with.add(teacher.new_user)
+
+                if not data["anonymous"]:
+                    level_management.email_new_custom_level(
+                        level.owner.student.class_field.teacher.new_user.email,
+                        request.build_absolute_uri(reverse("level_moderation")),
+                        request.build_absolute_uri(
+                            reverse("play_custom_level", kwargs={"levelId": level.id})
+                        ),
+                        request.build_absolute_uri(reverse("home")),
+                        str(level.owner.student),
+                        level.owner.student.class_field.name,
+                    )
+            elif is_user_teacher:
+                teacher = level.owner.teacher
+
+            # share with all admins of the school if user is in a school
+            if not is_user_independent:
+                school_admins = teacher.school.admins()
+
+                [
+                    level.shared_with.add(school_admin.new_user)
+                    for school_admin in school_admins
+                    if school_admin.new_user != request.user
+                ]
+
             level.save()
-            if not data["anonymous"]:
-                level_management.email_new_custom_level(
-                    level.owner.student.class_field.teacher.new_user.email,
-                    request.build_absolute_uri(reverse("level_moderation")),
-                    request.build_absolute_uri(
-                        reverse("play_custom_level", kwargs={"levelId": level.id})
-                    ),
-                    request.build_absolute_uri(reverse("home")),
-                    str(level.owner.student),
-                    level.owner.student.class_field.name,
-                )
         response = {"id": level.id}
         return HttpResponse(json.dumps(response), content_type="application/javascript")
     else:
@@ -286,7 +310,7 @@ def generate_random_map_for_editor(request):
 
 
 class SharingInformationForEditor(APIView):
-    """Returns a information about who the level can be and is shared with. This uses
+    """Returns information about who the level can be and is shared with. This uses
     the CanShareLevel permission."""
 
     authentication_classes = (SessionAuthentication,)
@@ -320,10 +344,10 @@ class SharingInformationForEditor(APIView):
             ).exclude(id=student.id)
             valid_recipients["classmates"] = [
                 {
-                    "id": classmate.user.user.id,
-                    "name": app_tags.make_into_username(classmate.user.user),
+                    "id": classmate.new_user.id,
+                    "name": app_tags.make_into_username(classmate.new_user),
                     "shared": level.owner == classmate.user
-                    or level.shared_with.filter(id=classmate.user.user.id).exists(),
+                    or level.shared_with.filter(id=classmate.new_user.id).exists(),
                 }
                 for classmate in classmates
             ]
@@ -331,10 +355,10 @@ class SharingInformationForEditor(APIView):
             # Then add their teacher as well
             teacher = class_.teacher
             valid_recipients["teacher"] = {
-                "id": teacher.user.user.id,
-                "name": app_tags.make_into_username(teacher.user.user),
+                "id": teacher.new_user.id,
+                "name": app_tags.make_into_username(teacher.new_user),
                 "shared": level.owner == teacher.user
-                or level.shared_with.filter(id=teacher.user.user.id).exists(),
+                or level.shared_with.filter(id=teacher.new_user.id).exists(),
             }
 
         elif hasattr(userprofile, "teacher"):
@@ -342,22 +366,27 @@ class SharingInformationForEditor(APIView):
 
             # First get all the students they teach
             valid_recipients["classes"] = []
-            classes_taught = Class.objects.filter(teacher=teacher)
+            if teacher.is_admin:
+                classes_taught = teacher.school.classes()
+            else:
+                classes_taught = teacher.class_teacher.all()
             for class_ in classes_taught:
                 students = Student.objects.filter(
                     class_field=class_, new_user__is_active=True
                 )
                 valid_recipients["classes"].append(
                     {
-                        "name": class_.name,
+                        "name": f"{class_.name} ({app_tags.make_into_username(class_.teacher.new_user)})"
+                        if teacher.is_admin
+                        else class_.name,
                         "id": class_.id,
                         "students": [
                             {
-                                "id": student.user.user.id,
-                                "name": app_tags.make_into_username(student.user.user),
+                                "id": student.new_user.id,
+                                "name": app_tags.make_into_username(student.new_user),
                                 "shared": level.owner == student.user
                                 or level.shared_with.filter(
-                                    id=student.user.user.id
+                                    id=student.new_user.id
                                 ).exists(),
                             }
                             for student in students
@@ -371,11 +400,12 @@ class SharingInformationForEditor(APIView):
                 fellow_teachers = Teacher.objects.filter(school=teacher.school)
                 valid_recipients["teachers"] = [
                     {
-                        "id": fellow_teacher.user.user.id,
-                        "name": app_tags.make_into_username(fellow_teacher.user.user),
+                        "id": fellow_teacher.new_user.id,
+                        "name": app_tags.make_into_username(fellow_teacher.new_user),
+                        "admin": fellow_teacher.is_admin,
                         "shared": level.owner == fellow_teacher.user
                         or level.shared_with.filter(
-                            id=fellow_teacher.user.user.id
+                            id=fellow_teacher.new_user.id
                         ).exists(),
                     }
                     for fellow_teacher in fellow_teachers
