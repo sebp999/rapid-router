@@ -10,7 +10,6 @@ ocargo.Game = function () {
 }
 
 ocargo.Game.prototype.setup = function () {
-  console.log("set up game");
   if (NIGHT_MODE_FEATURE_ENABLED) {
     if (NIGHT_MODE) {
       $('#paper').css('background-color', 'black')
@@ -35,8 +34,6 @@ ocargo.Game.prototype.setup = function () {
     COWS, //COWS comes from template, ie python
     MAX_FUEL
   )
-  console.log("cows=");
-  console.log(COWS);
   this.drawing = new ocargo.Drawing(ocargo.model.startingPosition())
   this.drawing.preloadRoadTiles()
   ocargo.animation = new ocargo.Animation(ocargo.model, DECOR, this.drawing)

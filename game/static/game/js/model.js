@@ -12,7 +12,6 @@ ocargo.Model = function(nodeData, origin, destinations, trafficLightData, cowDat
     }
 
     this.cows = [];
-    console.log(cowData);
     for(var i = 0; i < cowData.length; i++) {
         this.cows.push(new ocargo.Cow(i, cowData[i], this.map.nodes));
     }
@@ -65,8 +64,6 @@ ocargo.Model.prototype.reset = function() {
 // and returns a boolean
 
 ocargo.Model.prototype.observe = function(desc) {
-    console.log("observing");
-    console.log(this.shouldObserve);
     if (this.shouldObserve) {
         ocargo.animation.appendAnimation({
             type: 'van',
@@ -100,33 +97,20 @@ ocargo.Model.prototype.isDeadEnd = function() {
 };
 
 ocargo.Model.prototype.isCowCrossing = function(type) {
-    console.log("IS COW CROSSING???");
-    this.observe('cow crossing');
+
     var thisNode = this.van.getPosition().currentNode;
-    console.log(thisNode);
-    // var alreadyVisited = this.van.visitedNodes;
-    // console.log(this.van.visitedNodes);
-    // var connectedToThisNode = thisNode.connectedNodes;
-    // console.log(connectedToThisNode);
-    // var nextNodes = connectedToThisNode.filter(x => !alreadyVisited.includes(x));
-    // console.log(nextNodes);
-    // for(var i = 0; i < nextNodes.length; i++) {
-    //     var cow = this.getCowForNode(nextNodes[i]);
-    //     console.log(cow);
-    //     if (cow != null) {
-    //         return true;
-    //     }
-    // }
-    // return false;
-    var cow = this.getCowForNode(thisNode);
-    console.log(cow);
-    
-    if (cow == null) return false;
-
-    var state = cow.activeNodes[JSON.stringify(thisNode.coordinate)];
-    console.log(state);
-    return state == 'ACTIVE';
-
+    this.observe('cow crossing');
+    console.log("is there a cow crossing at "+ JSON.stringify(thisNode.coordinate)+ "?");
+    for(var i = 0; i < thisNode.connectedNodes.length; i++){
+        var node = thisNode.connectedNodes[i];
+        console.log("   (having a look at adjacent "+JSON.stringify(node.coordinate));
+        var cow = this.getCowForNode(node, ocargo.Cow.ACTIVE);
+        if (cow) {
+            console.log("Found a cow at "+JSON.stringify(node.coordinate));
+            return true;
+        } 
+    }
+    return false;
 };
 
 ocargo.Model.prototype.isTrafficLightRed = function() {
@@ -440,7 +424,14 @@ ocargo.Model.prototype.deliver = function() {
 };
 
 ocargo.Model.prototype.sound_horn = function() {
-    console.log("sound horn");
+    console.log("then I'll beep the horn");
+    if (!this.van) {
+        console.log("no van :(");
+        return;
+    }
+    var currentNode = this.van.getPosition().currentNode
+    console.log("current posn (" + JSON.stringify(currentNode.coordinate )+ ")");
+    console.log("beep beep");
     this.soundedHorn = {timestamp:this.movementTimestamp, coordinates:this.getCurrentCoordinate()};
     ocargo.animation.appendAnimation({
         type: 'callable',
@@ -448,12 +439,14 @@ ocargo.Model.prototype.sound_horn = function() {
         functionCall: ocargo.sound.sound_horn,
         description: 'van sound: sounding the horn'
     });
-
-    this.van.startingPosition.currentNode.connectedNodes.forEach( (node) => {
-        var cow = this.getCowForNode(node);
+    console.log("sounded horn, now removing any stray cows");
+    currentNode.connectedNodes.forEach( (node) => {
+        var cow = this.getCowForNode(node, ocargo.Cow.ACTIVE);
         if (cow) {
+            console.log("deactivating cow for "+JSON.stringify(node.coordinate));
             cow.queueLeaveAnimation(node);
             cow.setInactive(this, node);
+            console.log(cow);
         };
     });
     
@@ -638,18 +631,10 @@ ocargo.Model.prototype.programExecutionEnded = function () {
 // A helper function which returns the traffic light associated
 // with a particular node and orientation
 ocargo.Model.prototype.getTrafficLightForNode = function(position) {
-    console.log("IS THERE A TRAFFIC LIGHT?");
-    console.log(position);
-    console.log(position.previousNode);
-    console.log(position.currentNode);
 
     for (var i = 0; i < this.trafficLights.length; i++) {
         var light = this.trafficLights[i];
         
-        console.log(light);
-        console.log(position.previousNode);
-        console.log(position.currentNode);
-
         if (light.sourceNode === position.previousNode && light.controlledNode === position.currentNode) {
             return light;
         }
@@ -669,7 +654,6 @@ ocargo.Model.prototype.getDestinationForNode = function(node) {
 };
 
 ocargo.Model.prototype.getCowForNode = function(node, state) {
-    console.log(state);
     var jsonCoordinate = JSON.stringify(node.coordinate);
     for(var i = 0; i < this.cows.length; i++) {
         var cow = this.cows[i];

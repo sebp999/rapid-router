@@ -458,10 +458,8 @@ ocargo.LevelEditor = function(levelId) {
                     toolbox: toolbox,
                     trashcan: true
                 });
-                console.log("go through blocks");
                 for (var i = 0; i < BLOCKS.length; i++) {
                     var type = BLOCKS[i];
-                    console.log(type);
                     var block = Blockly.mainWorkspace.newBlock(type);
                     block.initSvg();
                     block.render();
