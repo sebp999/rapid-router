@@ -33,14 +33,15 @@ class Migration(migrations.Migration):
         }
 
         Block = apps.get_model("game", "Block")
+        Block.objects.filter(type="puff_up").delete()
+        Block.objects.filter(type="declare_event").delete()
+
         for block in Block.objects.all():
             block.block_type = block_types[block.type]
             block.save()
         Block.objects.create(type="cow_crossing", block_type=CONDITION)
         Block.objects.create(type="sound_horn", block_type=ACTION)
 
-        Block.objects.filter(type="puff_up").delete()
-        Block.objects.filter(type="declare_event").delete()
 
     dependencies = [
         ("game", "0076_block_block_type"),
