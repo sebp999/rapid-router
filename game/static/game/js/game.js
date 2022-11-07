@@ -31,7 +31,7 @@ ocargo.Game.prototype.setup = function () {
     ORIGIN,
     DESTINATIONS,
     TRAFFIC_LIGHTS,
-    COWS, //COWS comes from template, ie python
+    COWS,
     MAX_FUEL
   )
   this.drawing = new ocargo.Drawing(ocargo.model.startingPosition())

@@ -206,17 +206,6 @@ function initCustomBlocksDescription() {
         }
     };
 
-    Blockly.Blocks['cow_crossing'] = {
-        init: function() {
-            this.setOutput(true, 'Boolean');
-            this.appendDummyInput()
-                .appendField(gettext('cow crossing'))
-                .appendField(new Blockly.FieldImage(ocargo.Drawing.imageDir + 'empty.svg',
-                                                    ocargo.BlocklyControl.EXTRA_BLOCK_WIDTH,
-                                                    ocargo.BlocklyControl.BLOCK_HEIGHT));
-        }
-    };
-
     Blockly.Blocks['dead_end'] = {
         init: function() {
             this.setColour(210);
@@ -241,7 +230,6 @@ function initCustomBlocksDescription() {
         }
     };
 
-    console.log(ocargo.Drawing.imageDir);
     Blockly.Blocks['cow_crossing'] = {
         init: function() {
             this.setColour(210);
@@ -434,11 +422,6 @@ function initCustomBlocksPython() {
         // TODO: figure out what this ordering relates to;
     };
 
-    Blockly.Python['is_cows'] = function(block) {
-        return ['my_van.is_cows()', Blockly.Python.ORDER_NONE];
-        // TODO: figure out what this ordering relates to;
-    };
-
     Blockly.Python['call_proc'] = function(block) {
         return block.inputList[0].fieldRow[2].text_ + '()\n';
     };
@@ -450,8 +433,7 @@ function initCustomBlocksPython() {
     };
 
     Blockly.Python['cow_crossing'] = function(block) {
-        // TODO support events in python
-        throw 'events not supported in python';
+        return ['my_van.is_cows()', Blockly.Python.ORDER_NONE];
     };
 
     Blockly.Python['controls_repeat_while'] = function(block) {

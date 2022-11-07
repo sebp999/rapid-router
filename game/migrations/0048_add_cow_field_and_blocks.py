@@ -6,6 +6,14 @@ from django.db import models, migrations
 from game.level_management import set_blocks_inner, set_decor_inner
 
 
+def add_cows_block(apps, schema_editor):
+
+    Block = apps.get_model("game", "Block")
+
+    declare_event = Block.objects.create(type="declare_event")
+    puff_up = Block.objects.create(type="puff_up")
+    sound_horn = Block.objects.create(type="sound_horn")
+
 
 class Migration(migrations.Migration):
 
@@ -24,4 +32,5 @@ class Migration(migrations.Migration):
             field=models.TextField(default="[]", max_length=10000),
             preserve_default=True,
         ),
+        migrations.RunPython(add_cows_block),
     ]

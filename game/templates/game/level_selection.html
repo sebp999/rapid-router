@@ -187,9 +187,9 @@
             </div>
             <div id="collapse-levels-shared-with-you" aria-labelledby="episode-levels-shared-with-you" class="collapse">
                 <div class="panel-body">
-                    {% comment %} {% if user|is_logged_in_as_admin_teacher %}
+                    {% if user|is_logged_in_as_admin_teacher %}
                         <h6>Your classes</h6>
-                    {% endif %} {% endcomment %}
+                    {% endif %}
                     {% if directly_shared_levels %}
                         {% for level in directly_shared_levels %}
                             <p>

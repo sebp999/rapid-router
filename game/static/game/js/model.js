@@ -101,12 +101,14 @@ ocargo.Model.prototype.isCowCrossing = function(type) {
     var thisNode = this.van.getPosition().currentNode;
     this.observe('cow crossing');
     console.log("is there a cow crossing at "+ JSON.stringify(thisNode.coordinate)+ "?");
-    for(var i = 0; i < thisNode.connectedNodes.length; i++){
-        var node = thisNode.connectedNodes[i];
-        console.log("   (having a look at adjacent "+JSON.stringify(node.coordinate));
-        var cow = this.getCowForNode(node, ocargo.Cow.ACTIVE);
+    var nodes = thisNode.connectedNodes;
+    nodes.push(thisNode);
+    for(var i = 0; i < nodes.length; i++){
+        var node = nodes[i];
+        console.log("   (having a look at "+JSON.stringify(node.coordinate));
+        var cow = this.getCowForNode(node, [ocargo.Cow.ACTIVE, ocargo.Cow.READY]);
         if (cow) {
-            console.log("Found a cow at "+JSON.stringify(node.coordinate));
+            console.log("Found an active or ready cow at "+JSON.stringify(node.coordinate));
             return true;
         } 
     }
@@ -424,7 +426,6 @@ ocargo.Model.prototype.deliver = function() {
 };
 
 ocargo.Model.prototype.sound_horn = function() {
-    console.log("then I'll beep the horn");
     if (!this.van) {
         console.log("no van :(");
         return;
@@ -440,8 +441,11 @@ ocargo.Model.prototype.sound_horn = function() {
         description: 'van sound: sounding the horn'
     });
     console.log("sounded horn, now removing any stray cows");
-    currentNode.connectedNodes.forEach( (node) => {
-        var cow = this.getCowForNode(node, ocargo.Cow.ACTIVE);
+
+    var nodes = currentNode.connectedNodes;
+    nodes.push(currentNode);
+    nodes.forEach( (node) => {
+        var cow = this.getCowForNode(node, [ocargo.Cow.ACTIVE, ocargo.Cow.READY]);
         if (cow) {
             console.log("deactivating cow for "+JSON.stringify(node.coordinate));
             cow.queueLeaveAnimation(node);
@@ -661,8 +665,11 @@ ocargo.Model.prototype.getCowForNode = function(node, state) {
             if (state === undefined){
                 return cow;
             } else {
-                if (cow.activeNodes[jsonCoordinate] === state) {
-                    return cow
+                if (typeof(state) === "string") {
+                    state = [state];
+                } 
+                if (state.includes(cow.activeNodes[jsonCoordinate])) {
+                    return cow;
                 } 
             }
         }
@@ -698,9 +705,6 @@ ocargo.Model.prototype.incrementCowTime = function() {
         this.van.puffDown();
     }
 
-    // for (var i = 0; i < this.cows.length; i++) {
-    //     this.cows[i].incrementTime(this);
-    // }
     this.soundedHorn = {};
 
 };

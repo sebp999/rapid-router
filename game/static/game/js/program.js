@@ -13,7 +13,6 @@ ocargo.Program = function(events) {
 };
 
 ocargo.Program.prototype.run = function() {
-	// ocargo.model.chooseNewCowPositions();
 	ocargo.model.reset();
 	this.thread.run(ocargo.model);
 };

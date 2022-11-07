@@ -38,7 +38,7 @@ ocargo.Cow.prototype.queueAnimation = function(model, node) {
     });
 };
 
-ocargo.Cow.prototype.queueLeaveAnimation = function(node) {
+ocargo.Cow.prototype.queueLeaveAnimation = function(model, node) {
     ocargo.animation.appendAnimation({
         type: 'callable',
         functionCall: ocargo.sound.cow,
