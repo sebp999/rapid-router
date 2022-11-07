@@ -136,24 +136,6 @@ function initCustomBlocksDescription() {
         }
     };
 
-    Blockly.Blocks['puff_up'] = {
-        // Block for puffing up the van
-        init: function() {
-            this.setColour(330);
-            this.appendDummyInput()
-                .appendField(gettext('puff up'))
-                .appendField(new Blockly.FieldImage(ocargo.Drawing.imageDir + 'empty.svg',
-                    43,
-                    ocargo.BlocklyControl.BLOCK_HEIGHT))
-                .appendField(new Blockly.FieldImage(ocargo.Drawing.imageDir + 'empty.svg',
-                    ocargo.BlocklyControl.IMAGE_WIDTH,
-                    ocargo.BlocklyControl.BLOCK_HEIGHT));
-            this.setPreviousStatement(true, 'EventAction');
-            this.setNextStatement(false);
-            this.setTooltip(gettext('Puff up the van to scare away the cows'));
-        }
-    };
-
     Blockly.Blocks['sound_horn'] = {
         init: function() {
             this.setColour(160);
