@@ -24,7 +24,7 @@ class Block(models.Model):
             (0, "Start"),
             (1, "Action"),
             (2, "Condition"),
-            (3, "Proedure"),
+            (3, "Procedure"),
             (4, "ControlFlow"),
         ]
     )
